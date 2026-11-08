@@ -31,17 +31,40 @@ def _carregar(caminho: str, assinatura: float):
     return carregar(Path(caminho))
 
 
-def mostrar(fig) -> None:
+CHAVE_SELECAO = "sel_status"   # estado do clique no gráfico "Status dos indicadores"
+
+
+def mostrar(fig, **opcoes) -> None:
     if _USA_WIDTH:
-        st.plotly_chart(fig, width="stretch", theme=None, config=CONFIG_GRAFICO)
+        st.plotly_chart(fig, width="stretch", theme=None, config=CONFIG_GRAFICO, **opcoes)
     else:
-        st.plotly_chart(fig, use_container_width=True, theme=None, config=CONFIG_GRAFICO)
+        st.plotly_chart(fig, use_container_width=True, theme=None, config=CONFIG_GRAFICO, **opcoes)
 
 
-def cartao(chave: str, titulo: str, subtitulo: str, fig) -> None:
+def cartao(chave: str, titulo: str, subtitulo: str, fig, **opcoes) -> None:
     with st.container(key=f"card_{chave}"):
         st.markdown(cartoes.titulo_card(titulo, subtitulo), unsafe_allow_html=True)
-        mostrar(fig)
+        mostrar(fig, **opcoes)
+
+
+def indicador_selecionado(resultados):
+    """Resultado da linha clicada em "Status dos indicadores", ou None.
+
+    O estado do clique fica em st.session_state desde a execução anterior;
+    por isso pode ser lido antes de o gráfico ser desenhado.
+    """
+    estado = st.session_state.get(CHAVE_SELECAO)
+    try:
+        pontos = estado["selection"]["points"]
+    except (KeyError, TypeError):
+        return None
+    if not pontos:
+        return None
+    itens = graficos.itens_status(resultados)
+    posicao = pontos[-1].get("point_index")
+    if posicao is None or not 0 <= posicao < len(itens):
+        return None
+    return itens[posicao]
 
 
 def html(conteudo: str) -> None:
@@ -70,15 +93,27 @@ html(cartoes.grade_indicadores(resultados))
 
 # --------------------------------------------------------------------------- gráficos
 html(cartoes.secao("Desempenho do programa"))
+selecionado = indicador_selecionado(resultados)
 c1, c2 = st.columns([3, 2])
 with c1:
-    cartao("treinamentos", "Evolução dos treinamentos",
-           "Treinamentos concluídos e elegíveis por mês, com o ITR frente à meta.",
-           graficos.treinamentos(dados))
+    if selecionado is None:
+        cartao("treinamentos", "Evolução dos treinamentos",
+               "Treinamentos concluídos e elegíveis por mês, com o ITR frente à meta.",
+               graficos.treinamentos(dados))
+    else:
+        if selecionado.indicador.chave in graficos.SERIES_MENSAIS:
+            detalhe = "Valor mensal frente à meta; clique em outra linha ao lado para trocar."
+        else:
+            detalhe = ("Cada risco frente à meta (este indicador não tem série mensal); "
+                       "clique em outra linha para trocar.")
+        cartao("treinamentos", f"{selecionado.indicador.titulo} × meta", detalhe,
+               graficos.indicador_x_meta(dados, selecionado))
 with c2:
     cartao("status", "Status dos indicadores",
-           "Percentual da meta atingido; a cor indica a situação de cada indicador.",
-           graficos.status_indicadores(resultados))
+           "Percentual da meta atingido, colorido pela situação. "
+           "Clique em uma linha para ver o indicador mês a mês no gráfico de evolução.",
+           graficos.status_indicadores(resultados),
+           on_select="rerun", selection_mode="points", key=CHAVE_SELECAO)
 
 html(cartoes.secao("Denúncias e investigações"))
 c1, c2, c3 = st.columns(3)
@@ -120,10 +155,3 @@ with c2:
     cartao("benford", "Análise de Benford",
            "Volume de transações analisadas e percentual fora do padrão por mês.",
            graficos.benford(dados))
-
-# --------------------------------------------------------------------------- notas
-if dados.avisos:
-    html(cartoes.secao("Notas sobre os dados"))
-    with st.expander("Inconsistências e diferenças de critério encontradas na planilha"):
-        for aviso in dados.avisos:
-            st.markdown(f"- {aviso}")

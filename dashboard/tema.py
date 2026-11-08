@@ -33,11 +33,11 @@ MATRIZ = {"baixo": "#1D5A43", "medio": "#7A6420", "alto": "#8C2F3A"}
 
 # --------------------------------------------------------------------------- Plotly
 EIXO_X = dict(
-    showgrid=False, zeroline=False, linecolor=COR["grade"], ticks="",
+    showgrid=False, zeroline=False, linecolor=COR["grade"], ticks="", automargin=True,
     tickfont=dict(color=COR["texto2"], size=11), fixedrange=True,
 )
 EIXO_Y = dict(
-    showgrid=True, gridcolor=COR["grade"], zeroline=False, showline=False, ticks="",
+    showgrid=True, gridcolor=COR["grade"], zeroline=False, showline=False, ticks="", automargin=True,
     tickfont=dict(color=COR["texto2"], size=11), fixedrange=True,
 )
 
@@ -82,7 +82,7 @@ _CSS = """
 
 /* cartões de gráfico (st.container com key="card_...") */
 .stApp [class*="st-key-card_"] { gap: .3rem; background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px; padding: 1.3rem 1.3rem .9rem; }
-.stApp [data-testid="stPlotlyChart"] { margin-top: .2rem; }
+.stApp [data-testid="stPlotlyChart"] { margin-top: .2rem; overflow: hidden; }
 .cd-titulo { font-size: 1.02rem; font-weight: 700; letter-spacing: -.01em; color: var(--texto); }
 .cd-sub { font-size: .8rem; color: var(--texto2); line-height: 1.3; margin-top: .2rem; min-height: 2.6em; }
 

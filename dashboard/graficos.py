@@ -7,7 +7,7 @@ from plotly.subplots import make_subplots
 from . import formatos as f
 from . import tema
 from .dados import Dados
-from .indicadores import Resultado
+from .indicadores import Resultado, avaliar
 
 COR = tema.COR
 TEMPO = dict(hovermode="x unified")
@@ -38,20 +38,25 @@ def treinamentos(d: Dados) -> go.Figure:
     fig.update_layout(**tema.layout(barmode="group", bargap=0.28, bargroupgap=0.06, **TEMPO))
     fig.update_xaxes(**tema.EIXO_X)
     fig.update_yaxes(**tema.EIXO_Y, secondary_y=False)
-    fig.update_yaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True,
+    fig.update_yaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True, automargin=True,
                      range=[0.6, 1.02], tickformat=".0%", hoverformat=".1%",
                      tickfont=dict(color=COR["texto2"], size=11), secondary_y=True)
     return fig
 
 
 # --------------------------------------------------------------------------- 2
+def itens_status(resultados: list[Resultado]) -> list[Resultado]:
+    """Linhas do gráfico de status; a ordem define o `point_index` de um clique."""
+    return [r for r in resultados if r.atingimento == r.atingimento]  # descarta NaN
+
+
 def status_indicadores(resultados: list[Resultado]) -> go.Figure:
     """Atingimento da meta de cada indicador (100% = meta cumprida).
 
     Para indicadores em que menor é melhor (TMI, Benford, waivers, risco),
     o atingimento é meta ÷ valor, de modo que 100% ou mais significa dentro da meta.
     """
-    itens = [r for r in resultados if r.atingimento == r.atingimento]  # descarta NaN
+    itens = itens_status(resultados)
     fig = go.Figure(go.Bar(
         x=[r.atingimento for r in itens],
         y=[r.indicador.rotulo for r in itens],
@@ -62,6 +67,9 @@ def status_indicadores(resultados: list[Resultado]) -> go.Figure:
         textfont=dict(color=COR["texto"], size=11),
         customdata=[f"{f.pct(r.atingimento, 0)} da meta" for r in itens],
         hovertemplate="%{y}: %{customdata}<extra></extra>",
+        name="Indicadores", showlegend=False,
+        selected=dict(marker=dict(opacity=1)),
+        unselected=dict(marker=dict(opacity=0.35)),
     ))
     fig.add_vline(x=1, line=dict(color=COR["texto"], width=1.2, dash="dash"), opacity=0.55)
     # entrada de legenda para a linha de meta
@@ -71,7 +79,7 @@ def status_indicadores(resultados: list[Resultado]) -> go.Figure:
     fig.update_xaxes(**tema.EIXO_Y, range=[0, 1.75], tickvals=[0, 0.5, 1],
                      ticktext=["0%", "50%", "100%"])
     fig.update_yaxes(**{**tema.EIXO_X, "tickfont": dict(color=COR["texto"], size=12)},
-                     autorange="reversed", automargin=True)
+                     autorange="reversed")
     return fig
 
 
@@ -181,10 +189,10 @@ def matriz_riscos(d: Dados) -> go.Figure:
                         marker=dict(symbol="square", size=10, color=cor))
 
     fig.update_layout(**tema.layout(margin=dict(l=4, r=4, t=40, b=6)))
-    fig.update_xaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True,
+    fig.update_xaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True, automargin=True,
                      tickvals=niveis, range=[0.5, 4.5], title=dict(text="Impacto", standoff=8),
                      tickfont=dict(color=COR["texto"], size=12))
-    fig.update_yaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True,
+    fig.update_yaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True, automargin=True,
                      tickvals=niveis, range=[0.5, 4.5], title=dict(text="Probabilidade", standoff=8),
                      tickfont=dict(color=COR["texto"], size=12))
     return fig
@@ -207,7 +215,7 @@ def due_diligence(d: Dados) -> go.Figure:
     fig.update_layout(**tema.layout(bargap=0.4, showlegend=True))
     fig.update_xaxes(**tema.EIXO_Y, range=[0, 1.12], tickformat=".0%", tickvals=[0, 0.25, 0.5, 0.75, 1])
     fig.update_yaxes(**{**tema.EIXO_X, "tickfont": dict(color=COR["texto"], size=12)},
-                     autorange="reversed", automargin=True)
+                     autorange="reversed")
     return fig
 
 
@@ -265,7 +273,7 @@ def waivers(d: Dados) -> go.Figure:
     fig.update_layout(**tema.layout(barmode="group", bargap=0.28, bargroupgap=0.06, **TEMPO))
     fig.update_xaxes(**tema.EIXO_X)
     fig.update_yaxes(**tema.EIXO_Y, secondary_y=False)
-    fig.update_yaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True,
+    fig.update_yaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True, automargin=True,
                      range=[0, topo * 1.4], tickformat=".0%", hoverformat=".1%",
                      tickfont=dict(color=COR["texto2"], size=11), secondary_y=True)
     return fig
@@ -292,7 +300,71 @@ def benford(d: Dados) -> go.Figure:
     fig.update_layout(**tema.layout(bargap=0.35, **TEMPO))
     fig.update_xaxes(**tema.EIXO_X)
     fig.update_yaxes(**tema.EIXO_Y, secondary_y=False, tickformat=",", hoverformat=",")
-    fig.update_yaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True,
+    fig.update_yaxes(showgrid=False, zeroline=False, ticks="", fixedrange=True, automargin=True,
                      range=[0, topo * 1.45], tickformat=".0%", hoverformat=".2%",
                      tickfont=dict(color=COR["texto2"], size=11), secondary_y=True)
+    return fig
+
+
+# --------------------------------------------------------------------------- indicador x meta
+# Série mensal (coluna do valor, coluna da meta ou None para usar a meta da tabela KPI).
+SERIES_MENSAIS = {
+    "ITR %": ("ITR %", "Meta ITR %"),
+    "TMI (Dias)": ("TMI", "SLA TMI"),
+    "DDI %": ("DDI %", "Meta DDI %"),
+    "Desvio Benford %": ("Desvio Benford %", None),
+    "Score ECI": ("Score ECI", None),
+    "Taxa de Waivers": ("Taxa Waivers", None),
+}
+
+
+def _formato_hover(tipo: str) -> dict:
+    if tipo == "pct":
+        return dict(tickformat=".1%", hoverformat=".2%")
+    if tipo == "dias":
+        return dict(ticksuffix=" d", hoverformat=".1f")
+    return dict(hoverformat=".2f")
+
+
+def indicador_x_meta(d: Dados, r: Resultado) -> go.Figure:
+    """Valor do indicador selecionado ao longo dos meses frente à meta.
+
+    O risco residual não tem série mensal na planilha; para ele o gráfico mostra
+    o risco residual de cada risco cadastrado frente à meta.
+    """
+    ind = r.indicador
+    fig = go.Figure()
+
+    if ind.chave not in SERIES_MENSAIS:
+        riscos = d.riscos
+        cores = [tema.COR_STATUS[avaliar(ind, v, r.meta)] for v in riscos["Risco Residual"]]
+        fig.add_bar(x=riscos["ID"], y=riscos["Risco Residual"], name="Risco residual",
+                    marker_color=cores, texttemplate="%{y:.1f}", textposition="outside",
+                    textfont=dict(color=COR["texto"], size=12), cliponaxis=False,
+                    customdata=riscos["Descrição do Risco"],
+                    hovertemplate="%{x}: %{y:.1f}<br>%{customdata}<extra></extra>")
+        fig.add_scatter(x=riscos["ID"], y=[r.meta] * len(riscos), mode="lines",
+                        name=f"Meta ({f.curto(r.meta)})", line=_linha_meta(COR["texto"]))
+        fig.update_layout(**tema.layout(bargap=0.45))
+        fig.update_xaxes(**tema.EIXO_X)
+        fig.update_yaxes(**tema.EIXO_Y, range=[0, max(riscos["Risco Residual"].max(), r.meta) * 1.2])
+        return fig
+
+    col_valor, col_meta = SERIES_MENSAIS[ind.chave]
+    m = d.mensal
+    valores = m[col_valor]
+    metas = m[col_meta] if col_meta else [r.meta] * len(m)
+    dentro = [ind.dentro(v, mt) for v, mt in zip(valores, metas)]
+    cores = [COR["destaque"] if ok else COR["atencao"] for ok in dentro]
+    fig.add_scatter(x=m["Mês"], y=valores, name=ind.titulo, mode="lines+markers",
+                    line=dict(color=COR["destaque"], width=2.5),
+                    marker=dict(color=cores, size=9, line=dict(color=COR["cartao"], width=2)))
+    fig.add_scatter(x=m["Mês"], y=metas, name="Meta", mode="lines", line=_linha_meta(COR["texto"]))
+    fig.add_scatter(x=[None], y=[None], mode="markers", name="Fora da meta",
+                    marker=dict(color=COR["atencao"], size=9))
+    todos = list(valores.dropna()) + [v for v in metas if v == v]
+    folga = (max(todos) - min(todos)) * 0.15 or 1
+    fig.update_layout(**tema.layout(**TEMPO))
+    fig.update_xaxes(**tema.EIXO_X)
+    fig.update_yaxes(**tema.EIXO_Y, range=[min(todos) - folga, max(todos) + folga], **_formato_hover(ind.tipo))
     return fig
