@@ -7,6 +7,7 @@ venv/
 # Cache do Python
 __pycache__/
 *.py[cod]
+dashboard
 
 # Arquivos de ambiente e segredos
 .env

@@ -17,8 +17,15 @@ Dashboard executivo para monitorar um programa de compliance, construído com **
 Requer Python 3.10 ou mais recente.
 
 ```bash
+cd compliance_dashboard
 pip install -r requirements.txt
 streamlit run app.py
+```
+
+Se você já estiver na pasta raiz do repositório, também pode iniciar o app com:
+
+```bash
+streamlit run compliance_dashboard/app.py
 ```
 
 O app abre em `http://localhost:8501`.
@@ -27,20 +34,22 @@ O app abre em `http://localhost:8501`.
 
 ```
 .
-├── app.py                  # página principal: monta o layout e liga os módulos
-├── dashboard/
-│   ├── dados.py            # leitura e tratamento da planilha
-│   ├── indicadores.py      # definição dos indicadores e regra de situação (meta)
-│   ├── graficos.py         # construção dos gráficos (Plotly)
-│   ├── cartoes.py          # HTML do cabeçalho e dos cartões de indicador
-│   ├── tema.py             # paleta de cores, CSS e layout base dos gráficos
-│   └── formatos.py         # formatação de números no padrão pt-BR
-├── dados/
-│   └── compliance.xlsx     # fonte de dados
-├── .streamlit/config.toml  # tema escuro do Streamlit
-└── requirements.txt
+└── compliance_dashboard/
+    ├── app.py                  # página principal: monta o layout e liga os módulos
+    ├── dashboard/
+    │   ├── dados.py            # leitura e tratamento da planilha
+    │   ├── indicadores.py      # definição dos indicadores e regra de situação (meta)
+    │   ├── graficos.py         # construção dos gráficos (Plotly)
+    │   ├── cartoes.py          # HTML do cabeçalho e dos cartões de indicador
+    │   ├── tema.py             # paleta de cores, CSS e layout base dos gráficos
+    │   └── formatos.py         # formatação de números no padrão pt-BR
+    ├── assets/
+    │   └── icone.svg / .png    # ícone da página (shield-check, do Lucide)
+    ├── dados/
+    │   └── compliance.xlsx     # fonte de dados
+    ├── .streamlit/config.toml  # tema escuro do Streamlit
+    └── requirements.txt
 ```
 
 A separação segue uma ideia simples: **dados**, **regras de negócio**, **visual** e **página** ficam em arquivos diferentes. Por exemplo, trocar uma meta ou a tolerância de um indicador mexe só em `indicadores.py`, e mudar uma cor mexe só em `tema.py`.
-
 
