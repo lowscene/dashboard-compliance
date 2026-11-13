@@ -80,6 +80,11 @@ _CSS = """
 .stApp [data-testid="stVerticalBlock"], .stApp [data-testid="stHorizontalBlock"] { gap: 1.25rem; }
 .stApp [data-testid="stMarkdownContainer"] p { margin: 0; }
 
+/* containers das seções: fundo sólido, sem gradientes ou bordas coloridas */
+.stApp [class*="st-key-secao_"] { background: #1A1E22; border: 0; border-radius: 14px; padding: 1.1rem 1.1rem .9rem; margin: 1.25rem 0; }
+.stApp [class*="st-key-secao_"] > [data-testid="stVerticalBlock"] { gap: 1rem; }
+.stApp [class*="st-key-secao_indicadores"] {padding-bottom: 2rem !important;}
+
 /* cartões de gráfico (st.container com key="card_...") */
 .stApp [class*="st-key-card_"] { gap: .3rem; background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px; padding: 1.3rem 1.3rem .9rem; }
 .stApp [data-testid="stPlotlyChart"] { margin-top: .2rem; overflow: hidden; }
@@ -96,7 +101,7 @@ _CSS = """
 .cd-chip i { width: .5rem; height: .5rem; border-radius: 50%; }
 
 /* seções */
-.cd-secao { margin: 1.5rem 0 .1rem; }
+.cd-secao { margin: 0 0 .4rem; }
 .cd-secao-t { font-size: 1.2rem; font-weight: 700; letter-spacing: -.01em; color: var(--texto); }
 .cd-secao-s { font-size: .85rem; color: var(--texto2); margin-top: .15rem; }
 

@@ -20,19 +20,11 @@ def _rotulo_contagem(status: str, n: int) -> str:
 
 
 def cabecalho(periodo: str, resultados: list[Resultado]) -> str:
-    principais = [r for r in resultados if r.indicador.chave in PRINCIPAIS]
-    chips = ""
-    for status in ("ok", "atencao", "critico"):
-        n = sum(1 for r in principais if r.status == status)
-        chips += (
-            f'<span class="cd-chip"><i style="background:var(--{status})"></i>'
-            f"<b>{n}</b>{_rotulo_contagem(status, n)}</span>"
-        )
     return (
         '<div class="cd-header"><div>'
         '<div class="cd-h1" role="heading" aria-level="1">Dashboard Executivo</div>'
         f'<div class="cd-lead">Monitoramento mensal do programa de compliance, de {escape(periodo)}.</div>'
-        f'</div><div class="cd-resumo">{chips}</div></div>'
+        '</div></div>'
     )
 
 
