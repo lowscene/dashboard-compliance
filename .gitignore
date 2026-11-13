@@ -14,3 +14,4 @@ venv/
 
 # Configurações locais do editor
 .vscode/
+.gitigore
