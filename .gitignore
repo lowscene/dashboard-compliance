@@ -14,4 +14,4 @@ venv/
 
 # Configurações locais do editor
 .vscode/
-.gitigonre
+.gitignore
