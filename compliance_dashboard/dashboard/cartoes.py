@@ -30,7 +30,6 @@ def cabecalho(periodo: str, resultados: list[Resultado]) -> str:
         )
     return (
         '<div class="cd-header"><div>'
-        '<div class="cd-sistema"><span class="cd-marca"></span>Compliance Dashboard</div>'
         '<div class="cd-h1" role="heading" aria-level="1">Dashboard Executivo</div>'
         f'<div class="cd-lead">Monitoramento mensal do programa de compliance, de {escape(periodo)}.</div>'
         f'</div><div class="cd-resumo">{chips}</div></div>'

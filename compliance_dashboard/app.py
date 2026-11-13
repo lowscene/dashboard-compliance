@@ -8,14 +8,17 @@ import inspect
 from pathlib import Path
 
 import streamlit as st
+from PIL import Image
 
 from dashboard import cartoes, graficos, tema
 from dashboard.dados import ARQUIVO_PADRAO, carregar
 from dashboard.indicadores import montar_resultados
 
+ICONE = Image.open(Path(__file__).parent / "assets" / "icone.png")   # shield-check (Lucide)
+
 st.set_page_config(
     page_title="Compliance Dashboard",
-    page_icon="🛡️",
+    page_icon=ICONE,
     layout="wide",
     initial_sidebar_state="collapsed",
 )

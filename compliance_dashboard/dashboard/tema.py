@@ -88,9 +88,7 @@ _CSS = """
 
 /* cabeçalho */
 .cd-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap; }
-.cd-sistema { display: flex; align-items: center; gap: .55rem; font-size: .9rem; font-weight: 700; color: var(--destaque); }
-.cd-marca { width: .72rem; height: .72rem; border-radius: 3px; background: var(--destaque); }
-.cd-h1 { font-size: clamp(1.9rem, 3vw, 2.7rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin: .55rem 0 .45rem; color: var(--texto); }
+.cd-h1 { font-size: clamp(1.9rem, 3vw, 2.7rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin: 0 0 .45rem; color: var(--texto); }
 .cd-lead { font-size: .95rem; color: var(--texto2); }
 .cd-resumo { display: flex; gap: .6rem; flex-wrap: wrap; }
 .cd-chip { display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .85rem; border: 1px solid var(--borda); background: var(--cartao); border-radius: 10px; font-size: .82rem; color: var(--texto2); }
